@@ -1,0 +1,13 @@
+{
+  "domain": "sdm_meter",
+  "name": "SDM Meter Modbus RTU-over-TCP",
+  "codeowners": ["@jules"],
+  "config_flow": true,
+  "dependencies": [],
+  "documentation": "https://github.com/Xerolux/sdm-meter-hass",
+  "issue_tracker": "https://github.com/Xerolux/sdm-meter-hass/issues",
+  "integration_type": "hub",
+  "iot_class": "local_polling",
+  "requirements": ["pymodbus>=3.7.0"],
+  "version": "0.1.0"
+}
