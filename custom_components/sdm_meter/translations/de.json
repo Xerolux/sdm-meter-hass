@@ -5,6 +5,7 @@
         "title": "SDM Zähler Verbindung",
         "description": "Geben Sie die Verbindungsdetails für Ihren SDM Zähler (Modbus RTU over TCP) ein.",
         "data": {
+          "name": "Gerätename",
           "host": "Host/IP Adresse",
           "port": "Port",
           "slave": "Modbus Slave ID",

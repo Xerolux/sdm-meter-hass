@@ -6,12 +6,13 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant
 from homeassistant.const import CONF_HOST, CONF_PORT
 
-from .const import DOMAIN, DEFAULT_PORT, CONF_SLAVE, DEFAULT_SLAVE, CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL
+from .const import DOMAIN, DEFAULT_NAME, DEFAULT_PORT, CONF_SLAVE, DEFAULT_SLAVE, CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL, CONF_NAME
 
 _LOGGER = logging.getLogger(__name__)
 
 DATA_SCHEMA = vol.Schema(
     {
+        vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
         vol.Required(CONF_HOST): str,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
         vol.Required(CONF_SLAVE, default=DEFAULT_SLAVE): int,
@@ -32,7 +33,7 @@ class SdmMeterConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
             # You could add validation here to check if the modbus server is reachable
             # For now, we just create the entry
             return self.async_create_entry(
-                title=f"SDM Meter ({user_input[CONF_HOST]})",
+                title=f"{user_input[CONF_NAME]} ({user_input[CONF_HOST]})",
                 data=user_input,
             )
 

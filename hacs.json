@@ -1,5 +1,4 @@
 {
   "name": "SDM Meter",
-  "render_readme": true,
-  "iot_class": "Local Polling"
+  "render_readme": true
 }

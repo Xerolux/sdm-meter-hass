@@ -5,6 +5,7 @@
         "title": "SDM Meter Connection",
         "description": "Enter the connection details for your SDM Meter (Modbus RTU over TCP).",
         "data": {
+          "name": "Device Name",
           "host": "Host/IP Address",
           "port": "Port",
           "slave": "Modbus Slave ID",
