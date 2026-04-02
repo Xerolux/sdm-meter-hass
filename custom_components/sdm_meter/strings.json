@@ -19,5 +19,20 @@
     "abort": {
       "already_configured": "Device is already configured"
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "Configure SDM Meter",
+        "description": "Update the connection details for your SDM Meter.",
+        "data": {
+          "name": "Device Name",
+          "host": "Host/IP Address",
+          "port": "Port",
+          "slave": "Modbus Slave ID",
+          "update_interval": "Update Interval (seconds)"
+        }
+      }
+    }
   }
 }

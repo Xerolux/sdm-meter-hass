@@ -19,5 +19,20 @@
     "abort": {
       "already_configured": "Gerät ist bereits konfiguriert"
     }
+  },
+  "options": {
+    "step": {
+      "init": {
+        "title": "SDM Zähler konfigurieren",
+        "description": "Aktualisieren Sie die Verbindungsdetails für Ihren SDM Zähler.",
+        "data": {
+          "name": "Gerätename",
+          "host": "Host/IP Adresse",
+          "port": "Port",
+          "slave": "Modbus Slave ID",
+          "update_interval": "Aktualisierungsintervall (Sekunden)"
+        }
+      }
+    }
   }
 }
