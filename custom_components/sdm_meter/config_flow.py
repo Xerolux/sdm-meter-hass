@@ -1,54 +1,74 @@
 """Config flow for SDM Meter integration."""
+
+from __future__ import annotations
+
 import logging
-import voluptuous as vol
 
 from homeassistant import config_entries
-from homeassistant.core import HomeAssistant, callback
 from homeassistant.const import CONF_HOST, CONF_PORT
+from homeassistant.core import HomeAssistant, callback
 
-from .const import (
-    DOMAIN, DEFAULT_NAME, DEFAULT_PORT, CONF_SLAVE, DEFAULT_SLAVE,
-    CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL, CONF_NAME,
-    CONF_MODEL, MODEL_SDM630, MODEL_SDM120, DEFAULT_MODEL,
-    CONF_CONNECTION_TYPE, CONN_RTU_OVER_TCP, CONN_TCP, DEFAULT_CONNECTION_TYPE
-)
+from .const import CONF_CONNECTION_TYPE, CONF_NAME, CONF_SLAVE, DOMAIN
+from .flow_helpers import build_config_schema, build_unique_id
+from .hub import SdmMeterHub
 
 _LOGGER = logging.getLogger(__name__)
 
-MODELS = [MODEL_SDM630, MODEL_SDM120]
-CONNECTION_TYPES = [CONN_RTU_OVER_TCP, CONN_TCP]
 
-DATA_SCHEMA = vol.Schema(
-    {
-        vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
-        vol.Required(CONF_MODEL, default=DEFAULT_MODEL): vol.In(MODELS),
-        vol.Required(CONF_CONNECTION_TYPE, default=DEFAULT_CONNECTION_TYPE): vol.In(CONNECTION_TYPES),
-        vol.Required(CONF_HOST): str,
-        vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
-        vol.Required(CONF_SLAVE, default=DEFAULT_SLAVE): int,
-        vol.Required(CONF_UPDATE_INTERVAL, default=DEFAULT_UPDATE_INTERVAL): int,
-    }
-)
+async def _async_can_connect(user_input: dict, hass: HomeAssistant) -> bool:
+    """Check if the target Modbus endpoint can be reached."""
+    hub = SdmMeterHub(
+        hass,
+        user_input[CONF_HOST],
+        user_input[CONF_PORT],
+        user_input[CONF_SLAVE],
+        user_input[CONF_CONNECTION_TYPE],
+    )
+
+    try:
+        await hub.connect()
+        return hub.connected
+    except Exception:
+        _LOGGER.exception(
+            "Connection test failed for %s:%s",
+            user_input[CONF_HOST],
+            user_input[CONF_PORT],
+        )
+        return False
+    finally:
+        await hub.close()
+
 
 class SdmMeterConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
     """Handle a config flow for SDM Meter."""
 
     VERSION = 1
 
-    async def async_step_user(self, user_input=None):
+    async def async_step_user(self, user_input: dict | None = None):
         """Handle the initial step."""
-        errors = {}
+        errors: dict[str, str] = {}
 
         if user_input is not None:
-            # You could add validation here to check if the modbus server is reachable
-            # For now, we just create the entry
-            return self.async_create_entry(
-                title=f"{user_input[CONF_NAME]} ({user_input[CONF_HOST]})",
-                data=user_input,
+            unique_id = build_unique_id(
+                user_input[CONF_HOST],
+                user_input[CONF_PORT],
+                user_input[CONF_SLAVE],
             )
+            await self.async_set_unique_id(unique_id)
+            self._abort_if_unique_id_configured()
+
+            if await _async_can_connect(user_input, self.hass):
+                return self.async_create_entry(
+                    title=f"{user_input[CONF_NAME]} ({user_input[CONF_HOST]})",
+                    data=user_input,
+                )
+
+            errors["base"] = "cannot_connect"
 
         return self.async_show_form(
-            step_id="user", data_schema=DATA_SCHEMA, errors=errors
+            step_id="user",
+            data_schema=build_config_schema(user_input),
+            errors=errors,
         )
 
     @staticmethod
@@ -65,29 +85,16 @@ class SdmMeterOptionsFlowHandler(config_entries.OptionsFlow):
         """Initialize options flow."""
         self.config_entry = config_entry
 
-    async def async_step_init(self, user_input=None):
+    async def async_step_init(self, user_input: dict | None = None):
         """Manage the options."""
         if user_input is not None:
-            # Update the config entry with the new options (we store them in options)
-            # Alternatively, since we use `entry.data` in __init__ and sensor.py,
-            # we should update the entry data directly.
             self.hass.config_entries.async_update_entry(
-                self.config_entry, data={**self.config_entry.data, **user_input}
+                self.config_entry,
+                data={**self.config_entry.data, **user_input},
             )
             return self.async_create_entry(title="", data={})
 
-        current_config = self.config_entry.data
-
-        options_schema = vol.Schema(
-            {
-                vol.Required(CONF_NAME, default=current_config.get(CONF_NAME, DEFAULT_NAME)): str,
-                vol.Required(CONF_MODEL, default=current_config.get(CONF_MODEL, DEFAULT_MODEL)): vol.In(MODELS),
-                vol.Required(CONF_CONNECTION_TYPE, default=current_config.get(CONF_CONNECTION_TYPE, DEFAULT_CONNECTION_TYPE)): vol.In(CONNECTION_TYPES),
-                vol.Required(CONF_HOST, default=current_config.get(CONF_HOST, "")): str,
-                vol.Required(CONF_PORT, default=current_config.get(CONF_PORT, DEFAULT_PORT)): int,
-                vol.Required(CONF_SLAVE, default=current_config.get(CONF_SLAVE, DEFAULT_SLAVE)): int,
-                vol.Required(CONF_UPDATE_INTERVAL, default=current_config.get(CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL)): int,
-            }
+        return self.async_show_form(
+            step_id="init",
+            data_schema=build_config_schema(dict(self.config_entry.data)),
         )
-
-        return self.async_show_form(step_id="init", data_schema=options_schema)

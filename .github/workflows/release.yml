@@ -4,14 +4,18 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: write
+
 jobs:
   release:
-    name: Prepare release
+    name: Build and upload release asset
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout
+        uses: actions/checkout@v4
 
-      - name: Zip extension dir
+      - name: Zip integration directory
         run: |
           cd custom_components/sdm_meter
           zip -r ../../sdm_meter.zip .
