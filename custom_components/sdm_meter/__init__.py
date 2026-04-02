@@ -4,7 +4,7 @@ from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
 from homeassistant.const import CONF_HOST, CONF_PORT, Platform
 
-from .const import DOMAIN, CONF_SLAVE
+from .const import DOMAIN, CONF_SLAVE, CONF_CONNECTION_TYPE, CONN_RTU_OVER_TCP
 from .hub import SdmMeterHub
 
 _LOGGER = logging.getLogger(__name__)
@@ -13,11 +13,13 @@ PLATFORMS = [Platform.SENSOR]
 
 async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
     """Set up SDM Meter from a config entry."""
+    connection_type = entry.data.get(CONF_CONNECTION_TYPE, CONN_RTU_OVER_TCP)
     hub = SdmMeterHub(
         hass,
         entry.data[CONF_HOST],
         entry.data[CONF_PORT],
         entry.data[CONF_SLAVE],
+        connection_type,
     )
 
     hass.data.setdefault(DOMAIN, {})[entry.entry_id] = hub

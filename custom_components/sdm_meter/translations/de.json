@@ -6,6 +6,8 @@
         "description": "Geben Sie die Verbindungsdetails für Ihren SDM Zähler (Modbus RTU over TCP) ein.",
         "data": {
           "name": "Gerätename",
+          "model": "Gerätemodell",
+          "connection_type": "Verbindungstyp",
           "host": "Host/IP Adresse",
           "port": "Port",
           "slave": "Modbus Slave ID",
@@ -27,6 +29,8 @@
         "description": "Aktualisieren Sie die Verbindungsdetails für Ihren SDM Zähler.",
         "data": {
           "name": "Gerätename",
+          "model": "Gerätemodell",
+          "connection_type": "Verbindungstyp",
           "host": "Host/IP Adresse",
           "port": "Port",
           "slave": "Modbus Slave ID",

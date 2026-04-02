@@ -23,5 +23,10 @@ A custom component for Home Assistant to read from Eastron SDM meters (like SDM6
 3. Enter the IP address, Port, and Slave ID of your Modbus converter.
 4. Click **Submit**.
 
+## Supported Models
+This integration supports both **1-Phase** and **3-Phase** Eastron SDM models:
+* **SDM630 / SDM72 (3-Phase)**: Reads voltages, currents, active and reactive power, power factors, and phase angles for all 3 phases, plus line-to-line averages and total system values.
+* **SDM120 / SDM230 (1-Phase)**: Automatically filters out L2, L3, and 3-phase specific registers to prevent errors and clutter.
+
 ## Supported Entities
-This integration supports reading extensive real-time data from SDM meters, including voltages, currents, active and reactive power, power factors, and phase angles for all 3 phases.
+This integration supports reading extensive real-time data from SDM meters, including voltages, currents, active and reactive power, power factors, and phase angles. Total energy sensors use `device_class: energy` and `state_class: total_increasing` natively for perfect compatibility with the Home Assistant Energy Dashboard.

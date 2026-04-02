@@ -3,25 +3,29 @@ import asyncio
 import struct
 from pymodbus.client import AsyncModbusTcpClient
 from pymodbus.framer.rtu_framer import ModbusRtuFramer
+from pymodbus.framer.socket_framer import ModbusSocketFramer
 
 from homeassistant.core import HomeAssistant
-from .const import CONF_HOST, CONF_PORT, CONF_SLAVE
+from .const import CONF_HOST, CONF_PORT, CONF_SLAVE, CONF_CONNECTION_TYPE, CONN_RTU_OVER_TCP
 
 _LOGGER = logging.getLogger(__name__)
 
 class SdmMeterHub:
     """Modbus hub for SDM Meter."""
 
-    def __init__(self, hass: HomeAssistant, host: str, port: int, slave: int):
+    def __init__(self, hass: HomeAssistant, host: str, port: int, slave: int, connection_type: str = CONN_RTU_OVER_TCP):
         """Initialize the Modbus hub."""
         self._hass = hass
         self._host = host
         self._port = port
         self._slave = slave
+
+        framer = ModbusRtuFramer if connection_type == CONN_RTU_OVER_TCP else ModbusSocketFramer
+
         self._client = AsyncModbusTcpClient(
             host=self._host,
             port=self._port,
-            framer=ModbusRtuFramer,
+            framer=framer,
             timeout=10,
         )
         self._lock = asyncio.Lock()

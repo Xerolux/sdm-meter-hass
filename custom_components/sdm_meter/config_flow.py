@@ -6,13 +6,23 @@ from homeassistant import config_entries
 from homeassistant.core import HomeAssistant, callback
 from homeassistant.const import CONF_HOST, CONF_PORT
 
-from .const import DOMAIN, DEFAULT_NAME, DEFAULT_PORT, CONF_SLAVE, DEFAULT_SLAVE, CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL, CONF_NAME
+from .const import (
+    DOMAIN, DEFAULT_NAME, DEFAULT_PORT, CONF_SLAVE, DEFAULT_SLAVE,
+    CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL, CONF_NAME,
+    CONF_MODEL, MODEL_SDM630, MODEL_SDM120, DEFAULT_MODEL,
+    CONF_CONNECTION_TYPE, CONN_RTU_OVER_TCP, CONN_TCP, DEFAULT_CONNECTION_TYPE
+)
 
 _LOGGER = logging.getLogger(__name__)
+
+MODELS = [MODEL_SDM630, MODEL_SDM120]
+CONNECTION_TYPES = [CONN_RTU_OVER_TCP, CONN_TCP]
 
 DATA_SCHEMA = vol.Schema(
     {
         vol.Required(CONF_NAME, default=DEFAULT_NAME): str,
+        vol.Required(CONF_MODEL, default=DEFAULT_MODEL): vol.In(MODELS),
+        vol.Required(CONF_CONNECTION_TYPE, default=DEFAULT_CONNECTION_TYPE): vol.In(CONNECTION_TYPES),
         vol.Required(CONF_HOST): str,
         vol.Required(CONF_PORT, default=DEFAULT_PORT): int,
         vol.Required(CONF_SLAVE, default=DEFAULT_SLAVE): int,
@@ -71,6 +81,8 @@ class SdmMeterOptionsFlowHandler(config_entries.OptionsFlow):
         options_schema = vol.Schema(
             {
                 vol.Required(CONF_NAME, default=current_config.get(CONF_NAME, DEFAULT_NAME)): str,
+                vol.Required(CONF_MODEL, default=current_config.get(CONF_MODEL, DEFAULT_MODEL)): vol.In(MODELS),
+                vol.Required(CONF_CONNECTION_TYPE, default=current_config.get(CONF_CONNECTION_TYPE, DEFAULT_CONNECTION_TYPE)): vol.In(CONNECTION_TYPES),
                 vol.Required(CONF_HOST, default=current_config.get(CONF_HOST, "")): str,
                 vol.Required(CONF_PORT, default=current_config.get(CONF_PORT, DEFAULT_PORT)): int,
                 vol.Required(CONF_SLAVE, default=current_config.get(CONF_SLAVE, DEFAULT_SLAVE)): int,

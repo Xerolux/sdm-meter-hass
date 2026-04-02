@@ -17,7 +17,7 @@ from homeassistant.helpers.update_coordinator import (
     UpdateFailed,
 )
 
-from .const import DOMAIN, CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL
+from .const import DOMAIN, CONF_UPDATE_INTERVAL, DEFAULT_UPDATE_INTERVAL, CONF_MODEL, MODEL_SDM120
 
 _LOGGER = logging.getLogger(__name__)
 
@@ -27,6 +27,25 @@ async def async_setup_entry(
     """Set up the SDM Meter sensor platform."""
     hub = hass.data[DOMAIN][entry.entry_id]
 
+    model_name = entry.data.get(CONF_MODEL)
+
+    def is_supported(key: str) -> bool:
+        """Check if a sensor key is supported by the current model."""
+        if model_name == MODEL_SDM120:
+            # Filter out 3-phase specific registers for 1-phase meters
+            if "l2" in key or "l3" in key or "line" in key:
+                return False
+            # Exclude aggregate system values which are essentially duplicates or invalid on 1-phase
+            if "total_system" in key or "sum_" in key or "avg_" in key or "average_" in key:
+                return False
+            if key.startswith("l1_") and key != "l1_neutral_volts" and key != "l1_current" and key != "l1_power":
+                # SDM120 usually just provides total values instead of L1 specific values for energy
+                if "kwh" in key or "kvarh" in key or "thd" in key or "demand" in key:
+                    return False
+        return True
+
+    supported_addresses = {k: v for k, v in SENSOR_ADDRESSES.items() if is_supported(k)}
+
     async def async_update_data():
         """Fetch data from Modbus."""
         data = {}
@@ -34,7 +53,7 @@ async def async_setup_entry(
         # Batch ranges based on standard modbus register limits (usually max 125 registers per read)
         # SENSOR_ADDRESSES contains addresses spanning from 0 to ~380.
         # We group them into chunks.
-        addresses = sorted(SENSOR_ADDRESSES.values())
+        addresses = sorted(supported_addresses.values())
         if not addresses:
             return data
 
@@ -54,17 +73,22 @@ async def async_setup_entry(
         chunks.append((current_start, current_end - current_start))
 
         # Read chunks and populate data
+        success_count = 0
         for start_addr, count in chunks:
             registers = await hub.read_input_registers(start_addr, count)
             if not registers:
-                _LOGGER.error("Failed to read chunk starting at %s", start_addr)
+                _LOGGER.warning("Failed to read chunk starting at %s", start_addr)
                 continue
 
-            for key, addr in SENSOR_ADDRESSES.items():
+            success_count += 1
+            for key, addr in supported_addresses.items():
                 if start_addr <= addr < start_addr + count:
                     index = addr - start_addr
                     val = hub.decode_float32(registers, index)
                     data[key] = val
+
+        if success_count == 0:
+            raise UpdateFailed("Failed to read any data from Modbus meter")
 
         return data
 
@@ -83,7 +107,8 @@ async def async_setup_entry(
 
     entities = []
     for description in SENSOR_TYPES:
-        entities.append(SdmMeterSensor(coordinator, description, entry))
+        if is_supported(description.key):
+            entities.append(SdmMeterSensor(coordinator, description, entry))
 
     async_add_entities(entities)
 
@@ -98,12 +123,15 @@ class SdmMeterSensor(CoordinatorEntity, SensorEntity):
         self._attr_has_entity_name = True
         self._device_name = entry.data.get("name", "SDM Meter")
         self._entry_id = entry.entry_id
+        self._model = entry.data.get(CONF_MODEL, "SDM630")
 
     @property
     def native_value(self):
         """Return the state of the sensor."""
         val = self.coordinator.data.get(self.entity_description.key)
         if val is not None and hasattr(self.entity_description, 'precision'):
+            if self.entity_description.precision == 0:
+                return int(round(val, 0))
             return round(val, self.entity_description.precision)
         return val
 
@@ -114,7 +142,7 @@ class SdmMeterSensor(CoordinatorEntity, SensorEntity):
             "identifiers": {(DOMAIN, self._entry_id)},
             "name": self._device_name,
             "manufacturer": "Eastron",
-            "model": "SDM630",
+            "model": self._model,
         }
 
 from dataclasses import dataclass

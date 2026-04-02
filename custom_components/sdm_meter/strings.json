@@ -6,6 +6,8 @@
         "description": "Enter the connection details for your SDM Meter (Modbus RTU over TCP).",
         "data": {
           "name": "Device Name",
+          "model": "Device Model",
+          "connection_type": "Connection Type",
           "host": "Host/IP Address",
           "port": "Port",
           "slave": "Modbus Slave ID",
@@ -27,6 +29,8 @@
         "description": "Update the connection details for your SDM Meter.",
         "data": {
           "name": "Device Name",
+          "model": "Device Model",
+          "connection_type": "Connection Type",
           "host": "Host/IP Address",
           "port": "Port",
           "slave": "Modbus Slave ID",
