@@ -1,0 +1,26 @@
+name: Release
+
+on:
+  release:
+    types: [published]
+
+jobs:
+  release:
+    name: Prepare release
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Zip extension dir
+        run: |
+          cd custom_components/sdm_meter
+          zip -r ../../sdm_meter.zip .
+
+      - name: Upload zip to release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: sdm_meter.zip
+          asset_name: sdm_meter.zip
+          tag: ${{ github.ref }}
+          overwrite: true

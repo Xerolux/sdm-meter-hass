@@ -1,0 +1,22 @@
+{
+  "config": {
+    "step": {
+      "user": {
+        "title": "SDM Zähler Verbindung",
+        "description": "Geben Sie die Verbindungsdetails für Ihren SDM Zähler (Modbus RTU over TCP) ein.",
+        "data": {
+          "host": "Host/IP Adresse",
+          "port": "Port",
+          "slave": "Modbus Slave ID",
+          "update_interval": "Aktualisierungsintervall (Sekunden)"
+        }
+      }
+    },
+    "error": {
+      "cannot_connect": "Verbindung fehlgeschlagen"
+    },
+    "abort": {
+      "already_configured": "Gerät ist bereits konfiguriert"
+    }
+  }
+}
