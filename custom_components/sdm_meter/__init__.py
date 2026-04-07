@@ -31,7 +31,7 @@ async def async_setup_entry(hass: HomeAssistant, entry: ConfigEntry) -> bool:
 
     try:
         await hass.config_entries.async_forward_entry_setups(entry, PLATFORMS)
-    except Exception:
+    except Exception:  # pylint: disable=broad-exception-caught
         hass.data[DOMAIN].pop(entry.entry_id, None)
         await hub.close()
         _LOGGER.exception("Failed to set up SDM Meter entry %s", entry.entry_id)

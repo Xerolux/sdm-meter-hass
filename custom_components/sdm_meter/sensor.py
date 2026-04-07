@@ -8,6 +8,7 @@ from datetime import timedelta
 from homeassistant.components.sensor import SensorEntity
 from homeassistant.config_entries import ConfigEntry
 from homeassistant.core import HomeAssistant
+from homeassistant.helpers.device_registry import DeviceInfo
 from homeassistant.helpers.entity_platform import AddEntitiesCallback
 from homeassistant.helpers.update_coordinator import (
     CoordinatorEntity,
@@ -106,11 +107,11 @@ class SdmMeterSensor(CoordinatorEntity, SensorEntity):
         return super().available and self.entity_description.key in self.coordinator.data
 
     @property
-    def device_info(self):
+    def device_info(self) -> DeviceInfo:
         """Return device information about this entity."""
-        return {
-            "identifiers": {(DOMAIN, self._entry_id)},
-            "name": self._device_name,
-            "manufacturer": "Eastron",
-            "model": self._model,
-        }
+        return DeviceInfo(
+            identifiers={(DOMAIN, self._entry_id)},
+            name=self._device_name,
+            manufacturer="Eastron",
+            model=self._model,
+        )
