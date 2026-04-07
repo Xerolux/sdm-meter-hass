@@ -49,8 +49,7 @@ def _ensure_pymodbus_stubs() -> None:
 
     pymodbus = types.ModuleType("pymodbus")
     client = types.ModuleType("pymodbus.client")
-    rtu = types.ModuleType("pymodbus.framer.rtu_framer")
-    socket = types.ModuleType("pymodbus.framer.socket_framer")
+    framer = types.ModuleType("pymodbus.framer")
 
     class AsyncModbusTcpClient:  # pragma: no cover
         def __init__(self, *args, **kwargs):
@@ -69,13 +68,12 @@ def _ensure_pymodbus_stubs() -> None:
         pass
 
     client.AsyncModbusTcpClient = AsyncModbusTcpClient
-    rtu.ModbusRtuFramer = ModbusRtuFramer
-    socket.ModbusSocketFramer = ModbusSocketFramer
+    framer.FramerRTU = ModbusRtuFramer
+    framer.FramerSocket = ModbusSocketFramer
 
     sys.modules["pymodbus"] = pymodbus
     sys.modules["pymodbus.client"] = client
-    sys.modules["pymodbus.framer.rtu_framer"] = rtu
-    sys.modules["pymodbus.framer.socket_framer"] = socket
+    sys.modules["pymodbus.framer"] = framer
 
 
 _ensure_homeassistant_stubs()

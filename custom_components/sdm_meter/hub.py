@@ -8,8 +8,7 @@ import struct
 
 from homeassistant.core import HomeAssistant
 from pymodbus.client import AsyncModbusTcpClient
-from pymodbus.framer.rtu_framer import ModbusRtuFramer
-from pymodbus.framer.socket_framer import ModbusSocketFramer
+from pymodbus.framer import FramerRTU, FramerSocket
 
 from .const import CONN_RTU_OVER_TCP
 
@@ -19,6 +18,7 @@ _LOGGER = logging.getLogger(__name__)
 class SdmMeterHub:
     """Modbus hub for SDM Meter."""
 
+    # pylint: disable=too-many-arguments,too-many-positional-arguments
     def __init__(
         self,
         hass: HomeAssistant,
@@ -34,9 +34,9 @@ class SdmMeterHub:
         self._slave = slave
 
         framer = (
-            ModbusRtuFramer
+            FramerRTU
             if connection_type == CONN_RTU_OVER_TCP
-            else ModbusSocketFramer
+            else FramerSocket
         )
 
         self._client = AsyncModbusTcpClient(
@@ -63,6 +63,7 @@ class SdmMeterHub:
         if self._client.connected:
             self._client.close()
 
+    # pylint: disable=broad-exception-caught
     async def read_input_registers(self, address: int, count: int) -> list[int] | None:
         """Read input registers."""
         async with self._lock:
@@ -78,7 +79,7 @@ class SdmMeterHub:
                 result = await self._client.read_input_registers(
                     address=address,
                     count=count,
-                    slave=self._slave,
+                    device_id=self._slave,
                 )
                 if result.isError():
                     _LOGGER.error("Modbus error reading address %s: %s", address, result)
@@ -88,6 +89,7 @@ class SdmMeterHub:
                 _LOGGER.exception("Exception reading Modbus address %s", address)
                 return None
 
+    # pylint: disable=broad-exception-caught
     async def read_float32(self, address: int) -> float | None:
         """Read a float32 value from 2 input registers."""
         registers = await self.read_input_registers(address, 2)
@@ -101,6 +103,7 @@ class SdmMeterHub:
             _LOGGER.exception("Error unpacking float at address %s", address)
             return None
 
+    # pylint: disable=broad-exception-caught
     def decode_float32(self, registers: list[int], index: int) -> float | None:
         """Decode a float32 value from a list of registers at a specific index."""
         if not registers or len(registers) < index + 2:

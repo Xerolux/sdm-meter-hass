@@ -1,4 +1,5 @@
 """Sensor entity descriptions for SDM Meter."""
+# pylint: disable=unexpected-keyword-arg
 
 from __future__ import annotations
 
@@ -664,4 +665,3 @@ SENSOR_TYPES = [
         precision=2,
     ),
 ]
-
