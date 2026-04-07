@@ -12,3 +12,4 @@ testpaths = ["tests"]
 python_version = "3.12"
 warn_unused_ignores = true
 ignore_missing_imports = true
+explicit_package_bases = true
