@@ -31,11 +31,11 @@ def _ensure_homeassistant_stubs() -> None:
     class HomeAssistant:  # pragma: no cover
         pass
 
-    config_entries.ConfigEntry = ConfigEntry
-    const.CONF_HOST = "host"
-    const.CONF_PORT = "port"
-    const.Platform = Platform
-    core.HomeAssistant = HomeAssistant
+    config_entries.ConfigEntry = ConfigEntry  # type: ignore[attr-defined]
+    const.CONF_HOST = "host"  # type: ignore[attr-defined]
+    const.CONF_PORT = "port"  # type: ignore[attr-defined]
+    const.Platform = Platform  # type: ignore[attr-defined]
+    core.HomeAssistant = HomeAssistant  # type: ignore[attr-defined]
 
     sys.modules["homeassistant"] = ha
     sys.modules["homeassistant.config_entries"] = config_entries
@@ -67,9 +67,9 @@ def _ensure_pymodbus_stubs() -> None:
     class ModbusSocketFramer:  # pragma: no cover
         pass
 
-    client.AsyncModbusTcpClient = AsyncModbusTcpClient
-    framer.FramerRTU = ModbusRtuFramer
-    framer.FramerSocket = ModbusSocketFramer
+    client.AsyncModbusTcpClient = AsyncModbusTcpClient  # type: ignore[attr-defined]
+    framer.FramerRTU = ModbusRtuFramer  # type: ignore[attr-defined]
+    framer.FramerSocket = ModbusSocketFramer  # type: ignore[attr-defined]
 
     sys.modules["pymodbus"] = pymodbus
     sys.modules["pymodbus.client"] = client
