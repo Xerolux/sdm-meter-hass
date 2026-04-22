@@ -63,7 +63,7 @@ class SdmMeterHub:
         if self._client.connected:
             self._client.close()
 
-    # pylint: disable=broad-exception-caught
+    # pylint: disable=broad-except
     async def read_input_registers(self, address: int, count: int) -> list[int] | None:
         """Read input registers."""
         async with self._lock:
@@ -89,7 +89,7 @@ class SdmMeterHub:
                 _LOGGER.exception("Exception reading Modbus address %s", address)
                 return None
 
-    # pylint: disable=broad-exception-caught
+    # pylint: disable=broad-except
     async def read_float32(self, address: int) -> float | None:
         """Read a float32 value from 2 input registers."""
         registers = await self.read_input_registers(address, 2)
@@ -103,7 +103,7 @@ class SdmMeterHub:
             _LOGGER.exception("Error unpacking float at address %s", address)
             return None
 
-    # pylint: disable=broad-exception-caught
+    # pylint: disable=broad-except
     def decode_float32(self, registers: list[int], index: int) -> float | None:
         """Decode a float32 value from a list of registers at a specific index."""
         if not registers or len(registers) < index + 2:
