@@ -15,7 +15,7 @@ from .hub import SdmMeterHub
 _LOGGER = logging.getLogger(__name__)
 
 
-# pylint: disable=broad-exception-caught
+# pylint: disable=broad-except
 async def _async_can_connect(user_input: dict, hass: HomeAssistant) -> bool:
     """Check if the target Modbus endpoint can be reached."""
     hub = SdmMeterHub(
@@ -40,7 +40,7 @@ async def _async_can_connect(user_input: dict, hass: HomeAssistant) -> bool:
         await hub.close()
 
 
-class SdmMeterConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):
+class SdmMeterConfigFlow(config_entries.ConfigFlow, domain=DOMAIN):  # type: ignore[call-arg]
     """Handle a config flow for SDM Meter."""
     # pylint: disable=abstract-method
 
