@@ -2,19 +2,108 @@
 
 from __future__ import annotations
 
-from .const import MODEL_SDM120
+from .const import ALL_ONE_PHASE_MODELS, MODEL_SDM120
+
+
+_THREE_PHASE_ONLY_KEYS = {
+    "l2_neutral_volts",
+    "l3_neutral_volts",
+    "l2_current",
+    "l3_current",
+    "l2_power",
+    "l3_power",
+    "l2_volt_amps",
+    "l3_volt_amps",
+    "l2_volt_amps_reactive",
+    "l3_volt_amps_reactive",
+    "l2_power_factor",
+    "l3_power_factor",
+    "l2_phase_angle",
+    "l3_phase_angle",
+    "average_line_neutral_volt",
+    "average_line_current",
+    "sum_line_currents",
+    "total_system_power",
+    "total_system_volt_amps",
+    "total_system_var",
+    "total_system_power_factor",
+    "total_system_phase_angle",
+    "total_import_power_demand",
+    "max_total_import_power_demand",
+    "total_export_power_demand",
+    "max_total_export_power_demand",
+    "power_demand",
+    "max_power_demand",
+    "va_demand",
+    "max_va_demand",
+    "line1_line2_volts",
+    "line2_line3_volts",
+    "line3_line1_volts",
+    "avg_line_line_volts",
+    "neutral_current",
+    "l2_volts_thd",
+    "l3_volts_thd",
+    "l2_current_thd",
+    "l3_current_thd",
+    "avg_volts_thd",
+    "avg_current_thd",
+    "l2_current_demand",
+    "l3_current_demand",
+    "max_l2_current_demand",
+    "max_l3_current_demand",
+    "l2l3_volts_thd",
+    "l3l1_volts_thd",
+    "avg_line_line_volts_thd",
+    "total_kwh",
+    "total_kvarh",
+    "l2_import_kwh",
+    "l3_import_kwh",
+    "l2_export_kwh",
+    "l3_export_kwh",
+    "l2_total_kwh",
+    "l3_total_kwh",
+    "l2_import_kvarh",
+    "l3_import_kvarh",
+    "l2_export_kvarh",
+    "l3_export_kvarh",
+    "l2_total_kvarh",
+    "l3_total_kvarh",
+    "neutral_current_demand",
+    "max_neutral_current_demand",
+    "l1l2_volts_thd",
+}
+
+_ONE_PHASE_ADDITIONAL_EXCLUDED_KEYS = {
+    "l1_import_kwh",
+    "l1_export_kwh",
+    "l1_total_kwh",
+    "l1_import_kvarh",
+    "l1_export_kvarh",
+    "l1_total_kvarh",
+    "l1_volts_thd",
+    "l1_current_thd",
+    "l1_current_demand",
+    "max_l1_current_demand",
+    "vah_total",
+    "ah_total",
+    "l1_volt_amps",
+    "l1_volt_amps_reactive",
+    "l1_phase_angle",
+    "l1_power_factor",
+}
 
 
 def is_sensor_supported_for_model(model_name: str | None, key: str) -> bool:
     """Check if a sensor key is supported by the selected model."""
-    if model_name == MODEL_SDM120:
-        if "l2" in key or "l3" in key or "line" in key:
-            return False
-        if "total_system" in key or "sum_" in key or "avg_" in key or "average_" in key:
-            return False
-        if key.startswith("l1_") and key not in {"l1_neutral_volts", "l1_current", "l1_power"}:
-            if "kwh" in key or "kvarh" in key or "thd" in key or "demand" in key:
-                return False
+    if model_name is None or model_name not in ALL_ONE_PHASE_MODELS:
+        return True
+
+    if key in _THREE_PHASE_ONLY_KEYS:
+        return False
+
+    if key in _ONE_PHASE_ADDITIONAL_EXCLUDED_KEYS:
+        return False
+
     return True
 
 
@@ -92,6 +181,10 @@ SENSOR_ADDRESSES = {
     "ah_total": 82,
     "power_demand": 84,
     "max_power_demand": 86,
+    "total_import_power_demand": 88,
+    "max_total_import_power_demand": 90,
+    "total_export_power_demand": 92,
+    "max_total_export_power_demand": 94,
     "va_demand": 100,
     "max_va_demand": 102,
     "neutral_current_demand": 104,

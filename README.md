@@ -1,3 +1,5 @@
+**English** | [**Deutsch**](README_de.md)
+
 # SDM Meter (Modbus RTU-over-TCP) for Home Assistant
 
 Custom Home Assistant integration for Eastron SDM power meters via Modbus RTU-over-TCP or Modbus TCP.

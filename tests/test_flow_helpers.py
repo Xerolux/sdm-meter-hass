@@ -15,7 +15,7 @@ def test_schema_accepts_valid_input() -> None:
     data = schema(
         {
             "name": "SDM Main",
-            "model": "SDM630 (3-Phase)",
+            "model": "SDM630-MID (3-Phase)",
             "connection_type": "Modbus RTU-over-TCP",
             "host": "192.168.1.50",
             "port": 502,
@@ -24,6 +24,31 @@ def test_schema_accepts_valid_input() -> None:
         }
     )
     assert data["host"] == "192.168.1.50"
+
+
+@pytest.mark.parametrize(
+    ("model"),
+    [
+        "SDM630-MID (3-Phase)",
+        "SDM630 (3-Phase)",
+        "SDM72 (3-Phase)",
+        "SDM120/230 (1-Phase)",
+    ],
+)
+def test_schema_accepts_all_models(model: str) -> None:
+    schema = build_config_schema()
+    data = schema(
+        {
+            "name": "SDM Main",
+            "model": model,
+            "connection_type": "Modbus RTU-over-TCP",
+            "host": "192.168.1.50",
+            "port": 502,
+            "slave": 11,
+            "update_interval": 10,
+        }
+    )
+    assert data["model"] == model
 
 
 @pytest.mark.parametrize(
@@ -39,7 +64,7 @@ def test_schema_rejects_invalid_ranges(field: str, value) -> None:
     schema = build_config_schema()
     payload = {
         "name": "SDM Main",
-        "model": "SDM630 (3-Phase)",
+        "model": "SDM630-MID (3-Phase)",
         "connection_type": "Modbus RTU-over-TCP",
         "host": "192.168.1.50",
         "port": 502,
